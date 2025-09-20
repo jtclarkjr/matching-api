@@ -1,0 +1,62 @@
+# Development Environment Configuration
+# Overrides for local development
+
+# Server Configuration
+server:
+  host: "localhost"
+  port: 8080
+
+# Database Configuration  
+database:
+  host: "localhost"
+  port: 5432
+  name: "matching_db_dev"
+  user: "postgres"
+  ssl_mode: "disable"
+
+# Redis Configuration
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+
+# Session Configuration
+session:
+  secure: false # HTTP allowed for development
+  domain: "localhost"
+
+# CORS Configuration - More permissive for development
+cors:
+  allowed_origins:
+    - "http://localhost:3000"  # React dev server
+    - "http://localhost:8080"  # API server
+    - "http://localhost:5173"  # Vite dev server
+    - "http://127.0.0.1:3000"
+    - "http://127.0.0.1:8080"
+
+# Rate Limiting - More generous for development
+rate_limiting:
+  api_requests_per_minute: 1000
+  auth_requests_per_minute: 100
+  user_requests_per_minute: 500
+
+# Logging Configuration
+logging:
+  level: "debug"
+  format: "text" # Easier to read during development
+  output: "stdout"
+
+# Feature Flags - Enable all features for testing
+features:
+  analytics_enabled: true
+  push_notifications_enabled: true
+  image_processing_enabled: true
+  chat_enabled: true
+  real_time_features_enabled: true
+
+# Cache TTL - Shorter for development to see changes quickly
+cache:
+  user_profile_ttl: 5m
+  matches_ttl: 2m
+  potential_matches_ttl: 1m
+  default_ttl: 1m

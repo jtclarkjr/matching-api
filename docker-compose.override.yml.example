@@ -1,0 +1,31 @@
+# Development overrides
+# Copy this to docker-compose.override.yml to use in development
+
+services:
+  # Development app configuration
+  app:
+    # Enable live reload by mounting source code
+    volumes:
+      - .:/app
+    # Enable debugging
+    environment:
+      - GO_ENV=development
+      - DEBUG=true
+    # Override command for development
+    # command: air  # Uncomment if using air for hot reload
+
+  # Development database with increased logging
+  postgres:
+    environment:
+      - POSTGRES_DB=matching_db_dev
+    # Expose additional port for external connections
+    ports:
+      - "5433:5432"
+
+  # Development Redis with no password for easier debugging
+  redis:
+    # Remove password requirement for development
+    command: redis-server --appendonly yes
+    # Expose additional port
+    ports:
+      - "6380:6379"

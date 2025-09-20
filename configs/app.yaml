@@ -1,0 +1,122 @@
+# Matching API Configuration
+# This file defines the application configuration schema and default values
+# Environment variables will override these settings
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+  max_concurrent_requests: 100
+
+# Database Configuration
+database:
+  host: "localhost"
+  port: 5432
+  name: "matching_db"
+  user: "postgres"
+  password: "" # Use DB_PASSWORD env var
+  ssl_mode: "disable"
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: 5m
+
+# Redis Configuration
+redis:
+  host: "localhost"
+  port: 6379
+  password: "" # Use REDIS_PASSWORD env var
+  db: 0
+  pool_size: 100
+  idle_timeout: 180s
+
+# Session Configuration
+session:
+  name: "matching_api_session"
+  secret: "" # Use SESSION_SECRET env var
+  max_age: 604800 # 7 days in seconds
+  secure: false
+  http_only: true
+  domain: ""
+
+# JWT Configuration
+jwt:
+  secret: "" # Use JWT_SECRET env var
+  access_token_expiry: 15m
+  refresh_token_expiry: 168h # 7 days
+
+# Rate Limiting Configuration
+rate_limiting:
+  enabled: true
+  api_requests_per_minute: 100
+  auth_requests_per_minute: 10
+  user_requests_per_minute: 200
+
+# CORS Configuration
+cors:
+  allowed_origins:
+    - "*" # Configure for production
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Accept"
+    - "Authorization"
+    - "Content-Type"
+    - "X-CSRF-Token"
+  exposed_headers:
+    - "Link"
+  allow_credentials: true
+  max_age: 300
+
+# AWS S3 Configuration (Optional)
+aws:
+  s3:
+    bucket: "" # Use AWS_S3_BUCKET env var
+    region: "us-east-1"
+    access_key_id: "" # Use AWS_ACCESS_KEY_ID env var
+    secret_access_key: "" # Use AWS_SECRET_ACCESS_KEY env var
+    base_url: "" # Optional CDN URL
+
+# Caching Configuration
+cache:
+  user_profile_ttl: 30m
+  matches_ttl: 10m
+  potential_matches_ttl: 5m
+  default_ttl: 15m
+
+# Matching Algorithm Configuration
+matching:
+  max_distance_km: 50
+  age_range_factor: 0.3
+  location_factor: 0.4
+  activity_factor: 0.3
+  max_potential_matches: 50
+
+# Image Upload Configuration
+image_upload:
+  max_size_mb: 5
+  allowed_types:
+    - "image/jpeg"
+    - "image/png"
+    - "image/webp"
+  max_photos_per_user: 9
+
+# Logging Configuration
+logging:
+  level: "info" # debug, info, warn, error
+  format: "json" # json, text
+  output: "stdout" # stdout, stderr, file
+
+# Feature Flags
+features:
+  analytics_enabled: true
+  push_notifications_enabled: true
+  image_processing_enabled: true
+  chat_enabled: true
+  real_time_features_enabled: true

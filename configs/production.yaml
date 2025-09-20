@@ -1,0 +1,92 @@
+# Production Environment Configuration
+# Secure settings for production deployment
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+  max_concurrent_requests: 1000
+
+# Database Configuration
+database:
+  host: "" # Set via DB_HOST env var
+  port: 5432
+  name: "" # Set via DB_NAME env var
+  user: "" # Set via DB_USER env var
+  ssl_mode: "require"
+  max_open_conns: 100
+  max_idle_conns: 20
+  conn_max_lifetime: 10m
+
+# Redis Configuration
+redis:
+  host: "" # Set via REDIS_HOST env var
+  port: 6379
+  db: 0
+  pool_size: 200
+  idle_timeout: 300s
+
+# Session Configuration
+session:
+  secure: true # HTTPS required in production
+  http_only: true
+  max_age: 604800 # 7 days
+
+# CORS Configuration - Restrictive for production
+cors:
+  allowed_origins:
+    - "https://yourdomain.com"
+    - "https://www.yourdomain.com"
+    - "https://app.yourdomain.com"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allow_credentials: true
+  max_age: 86400 # 24 hours
+
+# Rate Limiting - Production limits
+rate_limiting:
+  enabled: true
+  api_requests_per_minute: 60
+  auth_requests_per_minute: 5
+  user_requests_per_minute: 100
+
+# Logging Configuration
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+
+# Feature Flags - Enable based on readiness
+features:
+  analytics_enabled: true
+  push_notifications_enabled: true
+  image_processing_enabled: true
+  chat_enabled: true
+  real_time_features_enabled: true
+
+# Cache TTL - Optimized for production performance
+cache:
+  user_profile_ttl: 60m
+  matches_ttl: 30m
+  potential_matches_ttl: 15m
+  default_ttl: 30m
+
+# Security Settings
+security:
+  bcrypt_cost: 12 # Higher cost for production
+  jwt_signing_method: "HS256"
+  session_cookie_same_site: "strict"
+  
+# Performance Settings
+performance:
+  enable_compression: true
+  compression_level: 6
+  enable_etag: true
+  enable_request_id: true

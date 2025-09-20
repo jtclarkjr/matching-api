@@ -1,0 +1,1081 @@
+basePath: /api/v1
+definitions:
+  models.APIResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  models.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        description: seconds
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.Chat:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      last_message:
+        $ref: '#/definitions/models.Message'
+      last_message_at:
+        type: string
+      match_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.DeviceToken:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_used:
+        type: string
+      platform:
+        description: ios, android
+        type: string
+      token:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  models.Location:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      state:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.Match:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      user1:
+        $ref: '#/definitions/models.User'
+      user1_id:
+        type: string
+      user2:
+        $ref: '#/definitions/models.User'
+      user2_id:
+        type: string
+    type: object
+  models.Message:
+    properties:
+      chat_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      message_type:
+        description: text, image, gif
+        type: string
+      sender_id:
+        type: string
+    type: object
+  models.MessageRequest:
+    properties:
+      content:
+        maxLength: 500
+        type: string
+      message_type:
+        enum:
+        - text
+        - image
+        - gif
+        type: string
+    required:
+    - content
+    type: object
+  models.Notification:
+    properties:
+      created_at:
+        type: string
+      data:
+        additionalProperties: true
+        type: object
+      id:
+        type: string
+      is_read:
+        type: boolean
+      is_sent:
+        type: boolean
+      message:
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/models.NotificationType'
+      user_id:
+        type: string
+    type: object
+  models.NotificationType:
+    enum:
+    - new_match
+    - super_like
+    - match_expiring
+    - new_message
+    - message_read
+    - profile_viewed
+    - photo_liked
+    - account_verified
+    - account_warning
+    - promotional
+    type: string
+    x-enum-varnames:
+    - NotificationNewMatch
+    - NotificationSuperLike
+    - NotificationMatchExpiring
+    - NotificationNewMessage
+    - NotificationMessageRead
+    - NotificationProfileViewed
+    - NotificationPhotoLiked
+    - NotificationAccountVerified
+    - NotificationAccountWarning
+    - NotificationPromotional
+  models.Photo:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      position:
+        description: Order of photos (1 = primary)
+        type: integer
+      url:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  models.RegisterDeviceRequest:
+    properties:
+      platform:
+        enum:
+        - ios
+        - android
+        - web
+        type: string
+      token:
+        type: string
+    required:
+    - platform
+    - token
+    type: object
+  models.RegisterRequest:
+    properties:
+      age:
+        maximum: 100
+        minimum: 18
+        type: integer
+      email:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      gender:
+        enum:
+        - male
+        - female
+        - non-binary
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - age
+    - email
+    - first_name
+    - gender
+    - last_name
+    - password
+    type: object
+  models.Swipe:
+    properties:
+      action:
+        $ref: '#/definitions/models.SwipeAction'
+      created_at:
+        type: string
+      id:
+        type: string
+      target_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.SwipeAction:
+    enum:
+    - left
+    - right
+    - super
+    type: string
+    x-enum-comments:
+      SuperLike: Super like
+      SwipeLeft: Pass/Dislike
+      SwipeRight: Like
+    x-enum-descriptions:
+    - Pass/Dislike
+    - Like
+    - Super like
+    x-enum-varnames:
+    - SwipeLeft
+    - SwipeRight
+    - SuperLike
+  models.SwipeRequest:
+    properties:
+      action:
+        allOf:
+        - $ref: '#/definitions/models.SwipeAction'
+        enum:
+        - left
+        - right
+        - super
+      target_id:
+        type: string
+    required:
+    - action
+    - target_id
+    type: object
+  models.UpdateProfileRequest:
+    properties:
+      age:
+        maximum: 100
+        minimum: 18
+        type: integer
+      bio:
+        maxLength: 500
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      location:
+        $ref: '#/definitions/models.Location'
+    type: object
+  models.User:
+    properties:
+      age:
+        type: integer
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      last_seen:
+        type: string
+      location:
+        $ref: '#/definitions/models.Location'
+      photos:
+        items:
+          $ref: '#/definitions/models.Photo'
+        type: array
+      preferences:
+        $ref: '#/definitions/models.UserPrefs'
+      updated_at:
+        type: string
+    type: object
+  models.UserPrefs:
+    properties:
+      age_max:
+        type: integer
+      age_min:
+        type: integer
+      created_at:
+        type: string
+      hide_age:
+        type: boolean
+      hide_distance:
+        type: boolean
+      id:
+        type: string
+      interested_in:
+        description: genders
+        items:
+          type: string
+        type: array
+      max_distance:
+        description: in kilometers
+        type: integer
+      only_verified:
+        type: boolean
+      show_me:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@matching-api.example.com
+    name: API Support
+    url: https://matching-api.example.com/support
+  description: A complete Go-based REST API for a dating application with real-time
+    chat, sophisticated matching algorithms, and comprehensive user management.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://matching-api.example.com/terms
+  title: Matching API - Matching App Backend
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: User login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuthResponse'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: User login
+      tags:
+      - Authentication
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuthResponse'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Invalid refresh token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account with email and password
+      parameters:
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.AuthResponse'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Authentication
+  /chats:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user's chat conversations with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Number of chats per page (max 50)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Chats retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    chats:
+                      items:
+                        $ref: '#/definitions/models.Chat'
+                      type: array
+                    limit:
+                      type: integer
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: Bad request - invalid pagination
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user chats
+      tags:
+      - Chat
+  /chats/{chatID}/messages:
+    post:
+      consumes:
+      - application/json
+      description: Send a message in a chat conversation
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chatID
+        required: true
+        type: string
+      - description: Message data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.MessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Message sent successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Message'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden - no access to chat
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Send message
+      tags:
+      - Chat
+  /matches:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user's current matches with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Number of matches per page (max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Matches retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    limit:
+                      type: integer
+                    matches:
+                      items:
+                        $ref: '#/definitions/models.Match'
+                      type: array
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: Bad request - invalid pagination
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user matches
+      tags:
+      - Matching
+  /matches/potential:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve potential matches based on user preferences and compatibility
+      parameters:
+      - default: 10
+        description: Number of potential matches (max 50)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Potential matches found
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.User'
+                  type: array
+              type: object
+        "400":
+          description: Bad request - invalid parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get potential matches
+      tags:
+      - Matching
+  /matches/swipe:
+    post:
+      consumes:
+      - application/json
+      description: Perform a swipe action (like/pass/super like) on another user
+      parameters:
+      - description: Swipe action data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwipeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Swipe recorded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    is_match:
+                      type: boolean
+                    match_id:
+                      type: string
+                    swipe:
+                      $ref: '#/definitions/models.Swipe'
+                  type: object
+              type: object
+        "400":
+          description: Bad request - validation failed or already swiped
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Swipe on a user
+      tags:
+      - Matching
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user's notifications with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Number of notifications per page (max 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by notification type
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notifications retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    limit:
+                      type: integer
+                    notifications:
+                      items:
+                        $ref: '#/definitions/models.Notification'
+                      type: array
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: Bad request - invalid pagination
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user notifications
+      tags:
+      - Notifications
+  /notifications/devices:
+    post:
+      consumes:
+      - application/json
+      description: Register a device token to receive push notifications
+      parameters:
+      - description: Device registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterDeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Device registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DeviceToken'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Register device for push notifications
+      tags:
+      - Notifications
+  /notifications/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: Get the count of unread notifications for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unread count retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    unread_count:
+                      type: integer
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get unread notification count
+      tags:
+      - Notifications
+  /users/photos:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new photo to user profile
+      parameters:
+      - description: Photo file (JPEG/PNG, max 5MB)
+        in: formData
+        name: photo
+        required: true
+        type: file
+      - default: 1
+        description: Photo position (1-9)
+        in: query
+        name: position
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Photo uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Photo'
+              type: object
+        "400":
+          description: Bad request - invalid file
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload profile photo
+      tags:
+      - User Management
+  /users/preferences:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the current user's matching preferences
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Preferences retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserPrefs'
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user preferences
+      tags:
+      - User Management
+  /users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the current user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - User Management
+    put:
+      consumes:
+      - application/json
+      description: Update the current user's profile information
+      parameters:
+      - description: Profile update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - User Management
+  /ws:
+    get:
+      consumes:
+      - application/json
+      description: Establish WebSocket connection for real-time chat and notifications
+      parameters:
+      - description: User ID for WebSocket connection
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: WebSocket connection established
+          schema:
+            type: string
+        "400":
+          description: Bad request - missing user_id
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: WebSocket connection
+      tags:
+      - Chat
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

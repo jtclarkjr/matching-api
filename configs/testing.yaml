@@ -1,0 +1,68 @@
+# Testing Environment Configuration
+# Configuration for running tests
+
+# Server Configuration
+server:
+  host: "localhost"
+  port: 8081 # Different port to avoid conflicts
+  read_timeout: 5s
+  write_timeout: 5s
+  idle_timeout: 10s
+
+# Database Configuration - Use test database
+database:
+  host: "localhost"
+  port: 5432
+  name: "matching_db_test"
+  user: "postgres"
+  ssl_mode: "disable"
+  max_open_conns: 5
+  max_idle_conns: 2
+  conn_max_lifetime: 1m
+
+# Redis Configuration - Use different DB for tests
+redis:
+  host: "localhost"
+  port: 6379
+  db: 1 # Different DB from development
+  pool_size: 10
+
+# Session Configuration
+session:
+  name: "test_session"
+  secure: false
+  max_age: 3600 # 1 hour for tests
+
+# Rate Limiting - Disabled for tests
+rate_limiting:
+  enabled: false
+  api_requests_per_minute: 10000
+  auth_requests_per_minute: 1000
+  user_requests_per_minute: 10000
+
+# Logging Configuration - Minimal for tests
+logging:
+  level: "warn" # Only show warnings and errors
+  format: "text"
+  output: "stdout"
+
+# Feature Flags - Enable for comprehensive testing
+features:
+  analytics_enabled: true
+  push_notifications_enabled: false # Disable for tests
+  image_processing_enabled: false # Disable for tests
+  chat_enabled: true
+  real_time_features_enabled: false # Disable WebSocket tests
+
+# Cache TTL - Very short for tests
+cache:
+  user_profile_ttl: 10s
+  matches_ttl: 5s
+  potential_matches_ttl: 3s
+  default_ttl: 5s
+
+# Test-specific settings
+test:
+  cleanup_interval: 1s
+  timeout: 30s
+  concurrent_tests: 4
