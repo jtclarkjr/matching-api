@@ -11,6 +11,16 @@ import (
 )
 
 // GetPreferences retrieves notification preferences for the user
+// @Summary Get notification preferences
+// @Description Retrieve the current user's notification preferences
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse{data=object{preferences=models.NotificationPreferences}} "Notification preferences retrieved"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/preferences [get]
 func (h *Handler) GetPreferences(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -88,6 +98,19 @@ func (h *Handler) GetPreferences(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdatePreferences updates notification preferences for the user
+// @Summary Update notification preferences
+// @Description Update the current user's notification preferences
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.UpdateNotificationPreferencesRequest true "Notification preferences update data"
+// @Success 200 {object} models.APIResponse "Notification preferences updated"
+// @Failure 400 {object} models.ErrorResponse "Bad request - validation failed"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 404 {object} models.ErrorResponse "Notification preferences not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/preferences [put]
 func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

@@ -10,6 +10,18 @@ import (
 )
 
 // RegisterDevice registers a device for push notifications
+// @Summary Register device for push notifications
+// @Description Register a device token to receive push notifications
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.RegisterDeviceRequest true "Device registration data"
+// @Success 201 {object} models.APIResponse{data=models.DeviceToken} "Device registered successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - validation failed"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/devices [post]
 func (h *Handler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -81,6 +93,19 @@ func (h *Handler) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 }
 
 // UnregisterDevice unregisters a device from push notifications
+// @Summary Unregister device from push notifications
+// @Description Remove a device token from receiving push notifications
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param tokenID path string true "Device token ID"
+// @Success 200 {object} models.APIResponse "Device unregistered from notifications"
+// @Failure 400 {object} models.ErrorResponse "Bad request - missing token ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 404 {object} models.ErrorResponse "Device token not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/devices/{tokenID} [delete]
 func (h *Handler) UnregisterDevice(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -132,6 +157,16 @@ func (h *Handler) UnregisterDevice(w http.ResponseWriter, r *http.Request) {
 }
 
 // TestNotification sends a test notification
+// @Summary Send test notification
+// @Description Send a test notification to verify notification setup
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse{data=object{notification_id=string,message=string}} "Test notification sent"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/test [post]
 func (h *Handler) TestNotification(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

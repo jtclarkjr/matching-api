@@ -143,6 +143,15 @@ func (h *Hub) sendToUser(userID string, message []byte) {
 }
 
 // HandleWebSocket handles WebSocket connections for real-time chat
+// @Summary WebSocket connection
+// @Description Establish WebSocket connection for real-time chat and notifications
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Param user_id query string true "User ID for WebSocket connection"
+// @Success 101 {string} string "WebSocket connection established"
+// @Failure 400 {object} models.ErrorResponse "Bad request - missing user_id"
+// @Router /ws [get]
 func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

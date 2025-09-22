@@ -58,14 +58,14 @@ func (h *Handler) GetMatches(w http.ResponseWriter, r *http.Request) {
 	// Try to get matches from Redis cache first
 	cacheKey := fmt.Sprintf("matches_page_%s_%d_%d", userClaims.UserID, page, limit)
 	var matches []models.Match
-	
+
 	if h.RedisService != nil {
 		if err := h.RedisService.Get(cacheKey, &matches); err == nil {
 			log.Printf("Matches served from cache for user: %s", userClaims.UserID)
 		} else {
 			// Cache miss, get from database
 			matches = h.getUserMatches(userClaims.UserID, page, limit)
-			
+
 			// Cache the results for 10 minutes
 			if err := h.RedisService.Set(cacheKey, matches, 10*time.Minute); err != nil {
 				log.Printf("Warning: Failed to cache matches: %v", err)
@@ -99,7 +99,7 @@ func (h *Handler) GetMatches(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
 // @Failure 403 {object} models.ErrorResponse "Forbidden - not part of this match"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
-// @Router /matches/{matchID}/unmatch [delete]
+// @Router /matches/{matchID} [delete]
 func (h *Handler) UnMatch(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	userClaims, ok := middleware.GetUserFromContext(r.Context())
@@ -121,6 +121,6 @@ func (h *Handler) UnMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Deactivate match in database
-	
+
 	utils.WriteSuccessResponse(w, "Match removed successfully", nil)
 }

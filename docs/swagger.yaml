@@ -64,6 +64,65 @@ definitions:
       success:
         type: boolean
     type: object
+  models.Image:
+    properties:
+      content_type:
+        type: string
+      created_at:
+        type: string
+      etag:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      position:
+        description: Position in user's photo gallery (1-9)
+        type: integer
+      s3_key:
+        type: string
+      size:
+        type: integer
+      thumbnail_url:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.ImageUploadBase64Request:
+    properties:
+      filename:
+        type: string
+      image_data:
+        description: base64 encoded
+        type: string
+      position:
+        maximum: 9
+        minimum: 1
+        type: integer
+    required:
+    - image_data
+    type: object
+  models.ImageUploadResponse:
+    properties:
+      content_type:
+        type: string
+      image_id:
+        type: string
+      position:
+        type: integer
+      s3_key:
+        type: string
+      size:
+        type: integer
+      thumbnail_url:
+        type: string
+      url:
+        type: string
+    type: object
   models.Location:
     properties:
       city:
@@ -159,6 +218,29 @@ definitions:
       user_id:
         type: string
     type: object
+  models.NotificationPreferences:
+    properties:
+      created_at:
+        type: string
+      email_enabled:
+        type: boolean
+      id:
+        type: string
+      marketing_emails:
+        type: boolean
+      match_notifications:
+        type: boolean
+      message_notifications:
+        type: boolean
+      profile_notifications:
+        type: boolean
+      push_enabled:
+        type: boolean
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   models.NotificationType:
     enum:
     - new_match
@@ -195,6 +277,32 @@ definitions:
       url:
         type: string
       user_id:
+        type: string
+    type: object
+  models.PresignedUploadRequest:
+    properties:
+      content_type:
+        type: string
+      position:
+        maximum: 9
+        minimum: 1
+        type: integer
+    required:
+    - content_type
+    type: object
+  models.PresignedUploadResponse:
+    properties:
+      expires_at:
+        type: string
+      image_id:
+        type: string
+      public_url:
+        type: string
+      s3_key:
+        type: string
+      thumbnail_url:
+        type: string
+      upload_url:
         type: string
     type: object
   models.RefreshTokenRequest:
@@ -297,6 +405,53 @@ definitions:
     - action
     - target_id
     type: object
+  models.UpdateNotificationPreferencesRequest:
+    properties:
+      email_enabled:
+        type: boolean
+      marketing_emails:
+        type: boolean
+      match_notifications:
+        type: boolean
+      message_notifications:
+        type: boolean
+      profile_notifications:
+        type: boolean
+      push_enabled:
+        type: boolean
+    type: object
+  models.UpdatePreferencesRequest:
+    properties:
+      age_max:
+        maximum: 100
+        minimum: 18
+        type: integer
+      age_min:
+        maximum: 100
+        minimum: 18
+        type: integer
+      hide_age:
+        type: boolean
+      hide_distance:
+        type: boolean
+      interested_in:
+        items:
+          type: string
+        type: array
+      max_distance:
+        maximum: 100
+        minimum: 1
+        type: integer
+      only_verified:
+        type: boolean
+      show_me:
+        enum:
+        - male
+        - female
+        - non-binary
+        - everyone
+        type: string
+    type: object
   models.UpdateProfileRequest:
     properties:
       age:
@@ -334,6 +489,8 @@ definitions:
       id:
         type: string
       is_active:
+        type: boolean
+      is_verified:
         type: boolean
       last_name:
         type: string
@@ -433,6 +590,36 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: User login
+      tags:
+      - Authentication
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user by invalidating refresh token and clearing session
+      parameters:
+      - description: Refresh token to invalidate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: User logout
       tags:
       - Authentication
   /auth/refresh:
@@ -566,6 +753,74 @@ paths:
       tags:
       - Chat
   /chats/{chatID}/messages:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve messages for a specific chat conversation with pagination
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chatID
+        required: true
+        type: string
+      - default: 50
+        description: Number of messages per page (max 100)
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    limit:
+                      type: integer
+                    messages:
+                      items:
+                        $ref: '#/definitions/models.Message'
+                      type: array
+                    offset:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: Bad request - invalid chat ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden - no access to chat
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Chat not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get chat messages
+      tags:
+      - Chat
     post:
       consumes:
       - application/json
@@ -615,6 +870,248 @@ paths:
       summary: Send message
       tags:
       - Chat
+  /images:
+    get:
+      consumes:
+      - application/json
+      description: Get all images uploaded by the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Images retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    images:
+                      items:
+                        $ref: '#/definitions/models.Image'
+                      type: array
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List user images
+      tags:
+      - Images
+  /images/{imageKey}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an image owned by the user
+      parameters:
+      - description: S3 image key
+        in: path
+        name: imageKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image deleted successfully
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - missing image key
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Image not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete image
+      tags:
+      - Images
+  /images/download/{imageKey}:
+    get:
+      consumes:
+      - application/json
+      description: Download an image file owned by the user
+      parameters:
+      - description: S3 image key
+        in: path
+        name: imageKey
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Image file
+          schema:
+            type: file
+        "400":
+          description: Bad request - missing image key
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Image not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Download image
+      tags:
+      - Images
+  /images/presigned-upload:
+    post:
+      consumes:
+      - application/json
+      description: Generate a presigned URL for direct image upload to S3
+      parameters:
+      - description: Presigned upload request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.PresignedUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Presigned URL generated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PresignedUploadResponse'
+              type: object
+        "400":
+          description: Bad request - invalid content type
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate presigned upload URL
+      tags:
+      - Images
+  /images/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an image file to user's profile
+      parameters:
+      - description: Image file (JPEG/PNG/WebP, max 10MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      - default: 1
+        description: Image position (1-9)
+        in: query
+        name: position
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Image uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ImageUploadResponse'
+              type: object
+        "400":
+          description: Bad request - invalid file
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload image
+      tags:
+      - Images
+  /images/upload-base64:
+    post:
+      consumes:
+      - application/json
+      description: Upload an image from base64 encoded data
+      parameters:
+      - description: Base64 image data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ImageUploadBase64Request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Base64 image uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ImageUploadResponse'
+              type: object
+        "400":
+          description: Bad request - invalid base64 data
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload base64 image
+      tags:
+      - Images
   /matches:
     get:
       consumes:
@@ -669,6 +1166,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Get user matches
+      tags:
+      - Matching
+  /matches/{matchID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove/unmatch with another user
+      parameters:
+      - description: Match ID
+        in: path
+        name: matchID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match removed successfully
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - invalid match ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden - not part of this match
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a match
       tags:
       - Matching
   /matches/potential:
@@ -821,6 +1357,45 @@ paths:
       summary: Get user notifications
       tags:
       - Notifications
+  /notifications/{notificationID}/read:
+    put:
+      consumes:
+      - application/json
+      description: Mark a specific notification as read for the current user
+      parameters:
+      - description: Notification ID
+        in: path
+        name: notificationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification marked as read
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - missing notification ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Notification not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark notification as read
+      tags:
+      - Notifications
   /notifications/devices:
     post:
       consumes:
@@ -860,6 +1435,185 @@ paths:
       security:
       - BearerAuth: []
       summary: Register device for push notifications
+      tags:
+      - Notifications
+  /notifications/devices/{tokenID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a device token from receiving push notifications
+      parameters:
+      - description: Device token ID
+        in: path
+        name: tokenID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Device unregistered from notifications
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - missing token ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Device token not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Unregister device from push notifications
+      tags:
+      - Notifications
+  /notifications/preferences:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the current user's notification preferences
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification preferences retrieved
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    preferences:
+                      $ref: '#/definitions/models.NotificationPreferences'
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get notification preferences
+      tags:
+      - Notifications
+    put:
+      consumes:
+      - application/json
+      description: Update the current user's notification preferences
+      parameters:
+      - description: Notification preferences update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateNotificationPreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification preferences updated
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Notification preferences not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update notification preferences
+      tags:
+      - Notifications
+  /notifications/read-all:
+    put:
+      consumes:
+      - application/json
+      description: Mark all notifications as read for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All notifications marked as read
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    notifications_updated:
+                      type: integer
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+  /notifications/test:
+    post:
+      consumes:
+      - application/json
+      description: Send a test notification to verify notification setup
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Test notification sent
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  properties:
+                    message:
+                      type: string
+                    notification_id:
+                      type: string
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Send test notification
       tags:
       - Notifications
   /notifications/unread-count:
@@ -940,6 +1694,45 @@ paths:
       summary: Upload profile photo
       tags:
       - User Management
+  /users/photos/{photoID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific photo from user profile
+      parameters:
+      - description: Photo ID
+        in: path
+        name: photoID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Photo deleted successfully
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad request - invalid photo ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden - photo doesn't belong to user
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete profile photo
+      tags:
+      - User Management
   /users/preferences:
     get:
       consumes:
@@ -968,6 +1761,46 @@ paths:
       security:
       - BearerAuth: []
       summary: Get user preferences
+      tags:
+      - User Management
+    put:
+      consumes:
+      - application/json
+      description: Update the current user's matching preferences
+      parameters:
+      - description: Preferences update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Preferences updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserPrefs'
+              type: object
+        "400":
+          description: Bad request - validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized - invalid token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user preferences
       tags:
       - User Management
   /users/profile:

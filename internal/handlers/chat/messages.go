@@ -13,6 +13,22 @@ import (
 )
 
 // GetMessages retrieves messages for a specific chat
+// @Summary Get chat messages
+// @Description Retrieve messages for a specific chat conversation with pagination
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param chatID path string true "Chat ID"
+// @Param limit query int false "Number of messages per page (max 100)" default(50)
+// @Param offset query int false "Offset for pagination" default(0)
+// @Success 200 {object} models.APIResponse{data=object{messages=[]models.Message,total=int,limit=int,offset=int}} "Messages retrieved successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid chat ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 403 {object} models.ErrorResponse "Forbidden - no access to chat"
+// @Failure 404 {object} models.ErrorResponse "Chat not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /chats/{chatID}/messages [get]
 func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -131,6 +147,20 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 // SendMessage sends a new message in a chat
+// @Summary Send message
+// @Description Send a message in a chat conversation
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param chatID path string true "Chat ID"
+// @Param request body models.MessageRequest true "Message data"
+// @Success 201 {object} models.APIResponse{data=models.Message} "Message sent successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - validation failed"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 403 {object} models.ErrorResponse "Forbidden - no access to chat"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /chats/{chatID}/messages [post]
 func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

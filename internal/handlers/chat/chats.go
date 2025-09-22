@@ -10,6 +10,19 @@ import (
 )
 
 // GetChats retrieves all chats for the authenticated user
+// @Summary Get user chats
+// @Description Retrieve user's chat conversations with pagination
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of chats per page (max 50)" default(20)
+// @Success 200 {object} models.APIResponse{data=object{chats=[]models.Chat,page=int,limit=int,total=int}} "Chats retrieved successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid pagination"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /chats [get]
 func (h *Handler) GetChats(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

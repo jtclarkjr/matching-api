@@ -12,6 +12,20 @@ import (
 )
 
 // GetNotifications retrieves all notifications for the authenticated user
+// @Summary Get user notifications
+// @Description Retrieve user's notifications with pagination and filtering
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of notifications per page (max 50)" default(20)
+// @Param type query string false "Filter by notification type"
+// @Success 200 {object} models.APIResponse{data=object{notifications=[]models.Notification,page=int,limit=int,total=int}} "Notifications retrieved successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid pagination"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications [get]
 func (h *Handler) GetNotifications(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -112,6 +126,19 @@ func (h *Handler) GetNotifications(w http.ResponseWriter, r *http.Request) {
 }
 
 // MarkAsRead marks a specific notification as read
+// @Summary Mark notification as read
+// @Description Mark a specific notification as read for the current user
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param notificationID path string true "Notification ID"
+// @Success 200 {object} models.APIResponse "Notification marked as read"
+// @Failure 400 {object} models.ErrorResponse "Bad request - missing notification ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 404 {object} models.ErrorResponse "Notification not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/{notificationID}/read [put]
 func (h *Handler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -163,6 +190,16 @@ func (h *Handler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 }
 
 // MarkAllAsRead marks all notifications as read for the user
+// @Summary Mark all notifications as read
+// @Description Mark all notifications as read for the current user
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse{data=object{notifications_updated=int}} "All notifications marked as read"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/read-all [put]
 func (h *Handler) MarkAllAsRead(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -204,6 +241,16 @@ func (h *Handler) MarkAllAsRead(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUnreadCount returns the count of unread notifications
+// @Summary Get unread notification count
+// @Description Get the count of unread notifications for the current user
+// @Tags Notifications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse{data=object{unread_count=int}} "Unread count retrieved successfully"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /notifications/unread-count [get]
 func (h *Handler) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())

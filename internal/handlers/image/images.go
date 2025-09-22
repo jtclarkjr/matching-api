@@ -15,6 +15,16 @@ import (
 )
 
 // ListUserImages lists all images for the authenticated user
+// @Summary List user images
+// @Description Get all images uploaded by the current user
+// @Tags Images
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse{data=object{images=[]models.Image,total=int}} "Images retrieved successfully"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images [get]
 func (h *Handler) ListUserImages(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -127,6 +137,19 @@ func detectContentType(data []byte) string {
 }
 
 // UploadImage handles image upload
+// @Summary Upload image
+// @Description Upload an image file to user's profile
+// @Tags Images
+// @Accept multipart/form-data
+// @Produce json
+// @Security BearerAuth
+// @Param image formData file true "Image file (JPEG/PNG/WebP, max 10MB)"
+// @Param position query int false "Image position (1-9)" default(1)
+// @Success 201 {object} models.APIResponse{data=models.ImageUploadResponse} "Image uploaded successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid file"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images/upload [post]
 func (h *Handler) UploadImage(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -237,6 +260,18 @@ func (h *Handler) UploadImage(w http.ResponseWriter, r *http.Request) {
 }
 
 // UploadImageBase64 handles base64 image upload
+// @Summary Upload base64 image
+// @Description Upload an image from base64 encoded data
+// @Tags Images
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.ImageUploadBase64Request true "Base64 image data"
+// @Success 201 {object} models.APIResponse{data=models.ImageUploadResponse} "Base64 image uploaded successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid base64 data"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images/upload-base64 [post]
 func (h *Handler) UploadImageBase64(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -330,6 +365,18 @@ func (h *Handler) UploadImageBase64(w http.ResponseWriter, r *http.Request) {
 }
 
 // GeneratePresignedUploadURL generates a presigned URL for image upload
+// @Summary Generate presigned upload URL
+// @Description Generate a presigned URL for direct image upload to S3
+// @Tags Images
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.PresignedUploadRequest true "Presigned upload request"
+// @Success 200 {object} models.APIResponse{data=models.PresignedUploadResponse} "Presigned URL generated successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - invalid content type"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images/presigned-upload [post]
 func (h *Handler) GeneratePresignedUploadURL(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -383,6 +430,19 @@ func (h *Handler) GeneratePresignedUploadURL(w http.ResponseWriter, r *http.Requ
 }
 
 // DownloadImage handles image download
+// @Summary Download image
+// @Description Download an image file owned by the user
+// @Tags Images
+// @Accept json
+// @Produce application/octet-stream
+// @Security BearerAuth
+// @Param imageKey path string true "S3 image key"
+// @Success 200 {file} file "Image file"
+// @Failure 400 {object} models.ErrorResponse "Bad request - missing image key"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 404 {object} models.ErrorResponse "Image not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images/download/{imageKey} [get]
 func (h *Handler) DownloadImage(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
@@ -457,6 +517,19 @@ func (h *Handler) DownloadImage(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteImage handles image deletion
+// @Summary Delete image
+// @Description Delete an image owned by the user
+// @Tags Images
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param imageKey path string true "S3 image key"
+// @Success 200 {object} models.APIResponse "Image deleted successfully"
+// @Failure 400 {object} models.ErrorResponse "Bad request - missing image key"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized - invalid token"
+// @Failure 404 {object} models.ErrorResponse "Image not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /images/{imageKey} [delete]
 func (h *Handler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user, ok := middleware.GetUserFromContext(r.Context())
