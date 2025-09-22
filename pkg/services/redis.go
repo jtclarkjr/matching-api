@@ -35,7 +35,7 @@ func NewRedisService() (*RedisService, error) {
 	}
 
 	addr := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: config.Password,
@@ -43,7 +43,7 @@ func NewRedisService() (*RedisService, error) {
 	})
 
 	ctx := context.Background()
-	
+
 	// Test connection
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
@@ -59,7 +59,7 @@ func NewRedisService() (*RedisService, error) {
 // Session Management Methods
 
 // StoreSession stores a session with expiration
-func (r *RedisService) StoreSession(sessionID string, data interface{}, expiration time.Duration) error {
+func (r *RedisService) StoreSession(sessionID string, data any, expiration time.Duration) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to marshal session data: %w", err)
@@ -70,7 +70,7 @@ func (r *RedisService) StoreSession(sessionID string, data interface{}, expirati
 }
 
 // GetSession retrieves a session
-func (r *RedisService) GetSession(sessionID string, dest interface{}) error {
+func (r *RedisService) GetSession(sessionID string, dest any) error {
 	key := fmt.Sprintf("session:%s", sessionID)
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
@@ -98,7 +98,7 @@ func (r *RedisService) ExtendSession(sessionID string, expiration time.Duration)
 // Caching Methods
 
 // CacheUser stores user data with TTL
-func (r *RedisService) CacheUser(userID string, userData interface{}, ttl time.Duration) error {
+func (r *RedisService) CacheUser(userID string, userData any, ttl time.Duration) error {
 	jsonData, err := json.Marshal(userData)
 	if err != nil {
 		return fmt.Errorf("failed to marshal user data: %w", err)
@@ -109,7 +109,7 @@ func (r *RedisService) CacheUser(userID string, userData interface{}, ttl time.D
 }
 
 // GetCachedUser retrieves cached user data
-func (r *RedisService) GetCachedUser(userID string, dest interface{}) error {
+func (r *RedisService) GetCachedUser(userID string, dest any) error {
 	key := fmt.Sprintf("user:%s", userID)
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
@@ -123,7 +123,7 @@ func (r *RedisService) GetCachedUser(userID string, dest interface{}) error {
 }
 
 // CacheMatches stores user matches with TTL
-func (r *RedisService) CacheMatches(userID string, matches interface{}, ttl time.Duration) error {
+func (r *RedisService) CacheMatches(userID string, matches any, ttl time.Duration) error {
 	jsonData, err := json.Marshal(matches)
 	if err != nil {
 		return fmt.Errorf("failed to marshal matches data: %w", err)
@@ -134,7 +134,7 @@ func (r *RedisService) CacheMatches(userID string, matches interface{}, ttl time
 }
 
 // GetCachedMatches retrieves cached matches
-func (r *RedisService) GetCachedMatches(userID string, dest interface{}) error {
+func (r *RedisService) GetCachedMatches(userID string, dest any) error {
 	key := fmt.Sprintf("matches:%s", userID)
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
@@ -148,7 +148,7 @@ func (r *RedisService) GetCachedMatches(userID string, dest interface{}) error {
 }
 
 // CachePotentialMatches stores potential matches with TTL
-func (r *RedisService) CachePotentialMatches(userID string, matches interface{}, ttl time.Duration) error {
+func (r *RedisService) CachePotentialMatches(userID string, matches any, ttl time.Duration) error {
 	jsonData, err := json.Marshal(matches)
 	if err != nil {
 		return fmt.Errorf("failed to marshal potential matches data: %w", err)
@@ -159,7 +159,7 @@ func (r *RedisService) CachePotentialMatches(userID string, matches interface{},
 }
 
 // GetCachedPotentialMatches retrieves cached potential matches
-func (r *RedisService) GetCachedPotentialMatches(userID string, dest interface{}) error {
+func (r *RedisService) GetCachedPotentialMatches(userID string, dest any) error {
 	key := fmt.Sprintf("potential_matches:%s", userID)
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
@@ -175,7 +175,7 @@ func (r *RedisService) GetCachedPotentialMatches(userID string, dest interface{}
 // Generic Cache Methods
 
 // Set stores any data with TTL
-func (r *RedisService) Set(key string, value interface{}, ttl time.Duration) error {
+func (r *RedisService) Set(key string, value any, ttl time.Duration) error {
 	jsonData, err := json.Marshal(value)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -185,7 +185,7 @@ func (r *RedisService) Set(key string, value interface{}, ttl time.Duration) err
 }
 
 // Get retrieves any cached data
-func (r *RedisService) Get(key string, dest interface{}) error {
+func (r *RedisService) Get(key string, dest any) error {
 	val, err := r.client.Get(r.ctx, key).Result()
 	if err != nil {
 		if err == redis.Nil {
@@ -230,11 +230,11 @@ func (r *RedisService) InvalidateUserCache(userID string) error {
 // IncrementRateLimit increments rate limit counter
 func (r *RedisService) IncrementRateLimit(identifier string, window time.Duration) (int64, error) {
 	key := fmt.Sprintf("rate_limit:%s", identifier)
-	
+
 	pipe := r.client.Pipeline()
 	incr := pipe.Incr(r.ctx, key)
 	pipe.Expire(r.ctx, key, window)
-	
+
 	_, err := pipe.Exec(r.ctx)
 	if err != nil {
 		return 0, fmt.Errorf("failed to increment rate limit: %w", err)

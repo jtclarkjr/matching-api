@@ -18,7 +18,7 @@ func init() {
 }
 
 // ParseAndValidateJSON parses JSON request body and validates it
-func ParseAndValidateJSON(r *http.Request, dest interface{}) error {
+func ParseAndValidateJSON(r *http.Request, dest any) error {
 	if err := json.NewDecoder(r.Body).Decode(dest); err != nil {
 		return fmt.Errorf("invalid JSON format: %w", err)
 	}
@@ -31,7 +31,7 @@ func ParseAndValidateJSON(r *http.Request, dest interface{}) error {
 }
 
 // ValidateStruct validates a struct using validator tags
-func ValidateStruct(s interface{}) error {
+func ValidateStruct(s any) error {
 	if err := validate.Struct(s); err != nil {
 		return formatValidationError(err)
 	}
@@ -53,7 +53,7 @@ func formatValidationError(err error) error {
 // formatFieldError formats a single field validation error
 func formatFieldError(e validator.FieldError) string {
 	field := e.Field()
-	
+
 	switch e.Tag() {
 	case "required":
 		return fmt.Sprintf("%s is required", field)
@@ -87,12 +87,12 @@ func GetQueryParamInt(r *http.Request, key string, defaultValue int) (int, error
 	if value == "" {
 		return defaultValue, nil
 	}
-	
+
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
 		return defaultValue, fmt.Errorf("invalid integer value for %s", key)
 	}
-	
+
 	return intValue, nil
 }
 
@@ -102,12 +102,12 @@ func GetQueryParamFloat(r *http.Request, key string, defaultValue float64) (floa
 	if value == "" {
 		return defaultValue, nil
 	}
-	
+
 	floatValue, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return defaultValue, fmt.Errorf("invalid float value for %s", key)
 	}
-	
+
 	return floatValue, nil
 }
 
@@ -123,28 +123,28 @@ func IsValidGender(gender string) bool {
 }
 
 // UpdateStructFields updates non-nil fields from source to destination
-func UpdateStructFields(source, dest interface{}) {
+func UpdateStructFields(source, dest any) {
 	sourceVal := reflect.ValueOf(source)
 	destVal := reflect.ValueOf(dest)
-	
+
 	if sourceVal.Kind() == reflect.Ptr {
 		sourceVal = sourceVal.Elem()
 	}
 	if destVal.Kind() == reflect.Ptr {
 		destVal = destVal.Elem()
 	}
-	
+
 	sourceType := sourceVal.Type()
-	
+
 	for i := 0; i < sourceVal.NumField(); i++ {
 		sourceField := sourceVal.Field(i)
 		sourceFieldType := sourceType.Field(i)
 		destField := destVal.FieldByName(sourceFieldType.Name)
-		
+
 		if !destField.IsValid() || !destField.CanSet() {
 			continue
 		}
-		
+
 		// Handle pointer fields (for partial updates)
 		if sourceField.Kind() == reflect.Ptr && !sourceField.IsNil() {
 			destField.Set(sourceField.Elem())

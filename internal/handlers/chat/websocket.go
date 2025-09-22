@@ -46,10 +46,10 @@ var hub = &Hub{
 
 // WebSocketMessage represents a WebSocket message
 type WebSocketMessage struct {
-	Type    string      `json:"type"`
-	ChatID  string      `json:"chat_id,omitempty"`
-	Message interface{} `json:"message,omitempty"`
-	UserID  string      `json:"user_id,omitempty"`
+	Type    string `json:"type"`
+	ChatID  string `json:"chat_id,omitempty"`
+	Message any    `json:"message,omitempty"`
+	UserID  string `json:"user_id,omitempty"`
 }
 
 func init() {

@@ -9,10 +9,10 @@ import (
 )
 
 // WriteJSONResponse writes a JSON response to the http.ResponseWriter
-func WriteJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+func WriteJSONResponse(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	
+
 	if data != nil {
 		if err := json.NewEncoder(w).Encode(data); err != nil {
 			log.Printf("Error encoding JSON response: %v", err)
@@ -21,7 +21,7 @@ func WriteJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) 
 }
 
 // WriteSuccessResponse writes a successful API response
-func WriteSuccessResponse(w http.ResponseWriter, message string, data interface{}) {
+func WriteSuccessResponse(w http.ResponseWriter, message string, data any) {
 	response := models.APIResponse{
 		Success: true,
 		Message: message,
@@ -75,7 +75,7 @@ func WriteNotFound(w http.ResponseWriter, message string) {
 }
 
 // WriteCreated writes a created response
-func WriteCreated(w http.ResponseWriter, message string, data interface{}) {
+func WriteCreated(w http.ResponseWriter, message string, data any) {
 	response := models.APIResponse{
 		Success: true,
 		Message: message,

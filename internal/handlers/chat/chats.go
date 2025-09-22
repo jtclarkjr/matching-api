@@ -2,6 +2,7 @@ package chat
 
 import (
 	"net/http"
+	"time"
 
 	"matching-api/internal/database"
 	"matching-api/internal/middleware"
@@ -80,7 +81,7 @@ func (h *Handler) GetChats(w http.ResponseWriter, r *http.Request) {
 		var match models.Match
 		var user1FirstName, user1LastName, user2FirstName, user2LastName string
 		var lastMessageID, lastMessageContent, lastMessageType string
-		var lastMessageCreatedAt interface{}
+		var lastMessageCreatedAt time.Time
 
 		err := rows.Scan(
 			&chat.ID, &chat.MatchID, &chat.LastMessageAt, &chat.CreatedAt, &chat.UpdatedAt,

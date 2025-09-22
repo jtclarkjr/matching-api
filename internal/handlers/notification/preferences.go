@@ -134,7 +134,7 @@ func (h *Handler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 
 	// Build dynamic update query
 	setParts := []string{}
-	args := []interface{}{}
+	args := []any{}
 	argIndex := 1
 
 	if req.PushEnabled != nil {

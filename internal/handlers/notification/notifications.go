@@ -64,7 +64,7 @@ func (h *Handler) GetNotifications(w http.ResponseWriter, r *http.Request) {
 		FROM notifications
 		WHERE user_id = $1
 	`
-	args := []interface{}{user.UserID}
+	args := []any{user.UserID}
 	argIndex := 2
 
 	if unreadOnly {

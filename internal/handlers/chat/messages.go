@@ -3,6 +3,7 @@ package chat
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -223,7 +224,7 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		RETURNING id, created_at
 	`
 
-	var createdAt interface{}
+	var createdAt time.Time
 	err = database.DB.QueryRow(insertQuery, chatID, user.UserID, req.Content, req.MessageType).Scan(&messageID, &createdAt)
 	if err != nil {
 		utils.LogError("Error inserting message", err)

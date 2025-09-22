@@ -51,11 +51,11 @@ type RefreshToken struct {
 
 // UpdateProfileRequest represents profile update request
 type UpdateProfileRequest struct {
-	FirstName *string    `json:"first_name,omitempty" validate:"omitempty,min=2,max=50"`
-	LastName  *string    `json:"last_name,omitempty" validate:"omitempty,min=2,max=50"`
-	Age       *int       `json:"age,omitempty" validate:"omitempty,min=18,max=100"`
-	Bio       *string    `json:"bio,omitempty" validate:"omitempty,max=500"`
-	Location  *Location  `json:"location,omitempty"`
+	FirstName *string   `json:"first_name,omitempty" validate:"omitempty,min=2,max=50"`
+	LastName  *string   `json:"last_name,omitempty" validate:"omitempty,min=2,max=50"`
+	Age       *int      `json:"age,omitempty" validate:"omitempty,min=18,max=100"`
+	Bio       *string   `json:"bio,omitempty" validate:"omitempty,max=500"`
+	Location  *Location `json:"location,omitempty"`
 }
 
 // UpdatePreferencesRequest represents preferences update request
@@ -72,10 +72,10 @@ type UpdatePreferencesRequest struct {
 
 // APIResponse represents a standard API response
 type APIResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
+	Data    any    `json:"data,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 // ErrorResponse represents an error response
