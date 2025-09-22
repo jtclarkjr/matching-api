@@ -51,3 +51,17 @@ CREATE INDEX IF NOT EXISTS idx_analytics_user_id ON analytics_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics_events(created_at);
 CREATE INDEX IF NOT EXISTS idx_analytics_session ON analytics_events(session_id);
+
+-- Device tokens table indexes
+CREATE INDEX IF NOT EXISTS idx_device_tokens_user_id ON device_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_device_tokens_platform ON device_tokens(platform);
+CREATE INDEX IF NOT EXISTS idx_device_tokens_active ON device_tokens(is_active);
+
+-- Notification preferences table indexes
+CREATE INDEX IF NOT EXISTS idx_notification_preferences_user_id ON notification_preferences(user_id);
+
+-- Images table indexes
+CREATE INDEX IF NOT EXISTS idx_images_user_id ON images(user_id);
+CREATE INDEX IF NOT EXISTS idx_images_position ON images(user_id, position);
+CREATE INDEX IF NOT EXISTS idx_images_s3_key ON images(s3_key);
+CREATE INDEX IF NOT EXISTS idx_images_active ON images(is_active);

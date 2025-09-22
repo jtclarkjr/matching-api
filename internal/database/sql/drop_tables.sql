@@ -4,6 +4,9 @@
 
 -- Drop tables in reverse dependency order
 DROP TABLE IF EXISTS analytics_events CASCADE;
+DROP TABLE IF EXISTS images CASCADE;
+DROP TABLE IF EXISTS device_tokens CASCADE;
+DROP TABLE IF EXISTS notification_preferences CASCADE;
 DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS refresh_tokens CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;

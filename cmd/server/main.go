@@ -13,7 +13,10 @@ import (
 	_ "matching-api/docs"
 	"matching-api/internal/database"
 	"matching-api/internal/handlers/auth"
+	"matching-api/internal/handlers/chat"
+	"matching-api/internal/handlers/image"
 	"matching-api/internal/handlers/match"
+	"matching-api/internal/handlers/notification"
 	"matching-api/internal/handlers/user"
 	customMiddleware "matching-api/internal/middleware"
 	"matching-api/pkg/services"
@@ -124,15 +127,9 @@ func main() {
 	authHandler := auth.NewHandler(redisService)
 	userHandler := user.NewHandler(s3Service, redisService)
 	matchHandler := match.NewHandler(redisService)
-	
-	// TODO: These handlers need to be restructured like auth, user, match
-	// For now, we'll comment them out to get the main ones working
-	// chatHandler := handlers.NewChatHandler()
-	// if redisService != nil {
-	// 	chatHandler.RedisService = redisService
-	// }
-	// notificationHandler := handlers.NewNotificationHandler()
-	// imageHandler := handlers.NewImageHandler(s3Service)
+	chatHandler := chat.NewHandler(redisService)
+	notificationHandler := notification.NewHandler(redisService)
+	imageHandler := image.NewHandler(s3Service, redisService)
 
 	// Swagger documentation
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
@@ -211,41 +208,39 @@ func main() {
 				r.Delete("/{matchID}", matchHandler.UnMatch)
 			})
 
-			// TODO: Uncomment and update these routes after restructuring remaining handlers
 			// Chat routes
-			// r.Route("/chats", func(r chi.Router) {
-			// 	r.Get("/", chatHandler.GetChats)
-			// 	r.Get("/{chatID}/messages", chatHandler.GetMessages)
-			// 	r.Post("/{chatID}/messages", chatHandler.SendMessage)
-			// })
+			r.Route("/chats", func(r chi.Router) {
+				r.Get("/", chatHandler.GetChats)
+				r.Get("/{chatID}/messages", chatHandler.GetMessages)
+				r.Post("/{chatID}/messages", chatHandler.SendMessage)
+			})
 
 			// Notification routes
-			// r.Route("/notifications", func(r chi.Router) {
-			// 	r.Get("/", notificationHandler.GetNotifications)
-			// 	r.Put("/{notificationID}/read", notificationHandler.MarkAsRead)
-			// 	r.Put("/read-all", notificationHandler.MarkAllAsRead)
-			// 	r.Get("/unread-count", notificationHandler.GetUnreadCount)
-			// 	r.Get("/preferences", notificationHandler.GetPreferences)
-			// 	r.Put("/preferences", notificationHandler.UpdatePreferences)
-			// 	r.Post("/devices", notificationHandler.RegisterDevice)
-			// 	r.Delete("/devices/{tokenID}", notificationHandler.UnregisterDevice)
-			// 	r.Post("/test", notificationHandler.TestNotification)
-			// })
+			r.Route("/notifications", func(r chi.Router) {
+				r.Get("/", notificationHandler.GetNotifications)
+				r.Put("/{notificationID}/read", notificationHandler.MarkAsRead)
+				r.Put("/read-all", notificationHandler.MarkAllAsRead)
+				r.Get("/unread-count", notificationHandler.GetUnreadCount)
+				r.Get("/preferences", notificationHandler.GetPreferences)
+				r.Put("/preferences", notificationHandler.UpdatePreferences)
+				r.Post("/devices", notificationHandler.RegisterDevice)
+				r.Delete("/devices/{tokenID}", notificationHandler.UnregisterDevice)
+				r.Post("/test", notificationHandler.TestNotification)
+			})
 
 			// Image routes
-			// r.Route("/images", func(r chi.Router) {
-			// 	r.Get("/", imageHandler.ListUserImages)
-			// 	r.Post("/upload", imageHandler.UploadImage)
-			// 	r.Post("/upload-base64", imageHandler.UploadImageBase64)
-			// 	r.Post("/presigned-upload", imageHandler.GeneratePresignedUploadURL)
-			// 	r.Get("/download/{imageKey}", imageHandler.DownloadImage)
-			// 	r.Delete("/{imageKey}", imageHandler.DeleteImage)
-			// })
+			r.Route("/images", func(r chi.Router) {
+				r.Get("/", imageHandler.ListUserImages)
+				r.Post("/upload", imageHandler.UploadImage)
+				r.Post("/upload-base64", imageHandler.UploadImageBase64)
+				r.Post("/presigned-upload", imageHandler.GeneratePresignedUploadURL)
+				r.Get("/download/{imageKey}", imageHandler.DownloadImage)
+				r.Delete("/{imageKey}", imageHandler.DeleteImage)
+			})
 		})
 
-		// TODO: Uncomment after restructuring chat handler
 		// WebSocket endpoint
-		// r.Get("/ws", chatHandler.HandleWebSocket)
+		r.Get("/ws", chatHandler.HandleWebSocket)
 	})
 
 	// Server configuration

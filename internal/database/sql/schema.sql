@@ -126,6 +126,50 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Device tokens table for push notifications
+CREATE TABLE IF NOT EXISTS device_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(500) NOT NULL,
+    platform VARCHAR(20) NOT NULL CHECK (platform IN ('ios', 'android', 'web')),
+    is_active BOOLEAN DEFAULT true,
+    last_used TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, token)
+);
+
+-- Notification preferences table
+CREATE TABLE IF NOT EXISTS notification_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    push_enabled BOOLEAN DEFAULT true,
+    email_enabled BOOLEAN DEFAULT true,
+    match_notifications BOOLEAN DEFAULT true,
+    message_notifications BOOLEAN DEFAULT true,
+    profile_notifications BOOLEAN DEFAULT true,
+    marketing_emails BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id)
+);
+
+-- Images table for S3 integration
+CREATE TABLE IF NOT EXISTS images (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    s3_key VARCHAR(500) NOT NULL,
+    url VARCHAR(1000) NOT NULL,
+    thumbnail_url VARCHAR(1000),
+    position INTEGER NOT NULL DEFAULT 1 CHECK (position >= 1 AND position <= 9),
+    content_type VARCHAR(100) NOT NULL,
+    size BIGINT NOT NULL,
+    etag VARCHAR(255),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, position)
+);
+
 -- Migrations tracking table
 CREATE TABLE IF NOT EXISTS migrations (
     version VARCHAR(255) PRIMARY KEY,
